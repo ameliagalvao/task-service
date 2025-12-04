@@ -40,7 +40,8 @@ public class TaskRepositoryAdapter implements TaskRepositoryPort {
                     existing.setDescription(updatedTask.getDescription());
                     existing.setCompleted(updatedTask.isCompleted());
                     return repository.save(existing);
-                });
+                })
+                .switchIfEmpty(Mono.empty());
     }
 }
 
