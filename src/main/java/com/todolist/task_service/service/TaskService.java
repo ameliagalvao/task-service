@@ -1,42 +1,35 @@
 package com.todolist.task_service.service;
 
-import com.todolist.task_service.model.Task;
+import com.todolist.task_service.adapter.TaskRepositoryPort;
+import com.todolist.task_service.domain.Task;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
+@RequiredArgsConstructor
 public class TaskService {
-    private final Map<Long, Task> tasks = new HashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong();
 
-    public Task create(Task task) {
-        task.setId(idGenerator.incrementAndGet());
-        task.setCompleted(false);
-        tasks.put(task.getId(), task);
-        return task;
+    private final TaskRepositoryPort repository;
+
+    public Mono<Task> create(Task task) {
+        return repository.save(task);
     }
 
-    public List<Task> findAll() {
-        return new ArrayList<>(tasks.values());
+    public Flux<Task> getAll() {
+        return repository.findAll();
     }
 
-    public Optional<Task> findById(Long id) {
-        return Optional.ofNullable(tasks.get(id));
+    public Mono<Task> getById(Long id) {
+        return repository.findById(id);
     }
 
-    public Task update(Long id, Task updatedTask) {
-        Task task = tasks.get(id);
-        if (task != null) {
-            task.setTitle(updatedTask.getTitle());
-            task.setDescription(updatedTask.getDescription());
-            task.setCompleted(updatedTask.isCompleted());
-        }
-        return task;
+    public Mono<Void> delete(Long id) {
+        return repository.deleteById(id);
     }
 
-    public void delete(Long id) {
-        tasks.remove(id);
+    public Mono<Task> update(Long id, Task task) {
+        return repository.update(id, task);
     }
 }
